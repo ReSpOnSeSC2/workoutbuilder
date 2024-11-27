@@ -532,7 +532,7 @@
             const listItem = document.createElement('li');
             listItem.className = 'exercise-group';
             listItem.innerHTML = `
-                ${isSuperset ? '<h4>Superset</h4>' : ''}
+                ${isSuperset ? '<h4>Superset Exercise</h4>' : ''}
                 <label>Exercise:</label>
                 <select onchange="checkCustomExercise(this)">
                     ${exerciseOptions.map(exercise => `<option>${exercise}</option>`).join('')}
@@ -590,21 +590,21 @@
             const list = document.getElementById(sessionId);
             const supersetDiv = document.createElement('div');
             supersetDiv.className = 'superset-group';
+            const supersetListId = generateRandomId(); // Generate a unique ID
             supersetDiv.innerHTML = `
                 <h4>Superset</h4>
-                <ul class="superset-list"></ul>
-                <button type="button" onclick="addExerciseToSuperset(this)">Add Exercise to Superset</button>
+                <ul id="${supersetListId}" class="exercise-list superset-list"></ul>
+                <button type="button" onclick="addExerciseToSuperset(this, '${supersetListId}')">Add Exercise to Superset</button>
                 <button type="button" onclick="removeSuperset(this)">Remove Superset</button>
             `;
             list.appendChild(supersetDiv);
 
             // Make the superset list sortable
-            $(supersetDiv).find('.superset-list').sortable();
+            $(`#${supersetListId}`).sortable();
         }
 
-        function addExerciseToSuperset(button) {
-            const supersetList = button.parentElement.querySelector('.superset-list');
-            addExercise(supersetList.id || generateRandomId(), null, true);
+        function addExerciseToSuperset(button, supersetListId) {
+            addExercise(supersetListId, null, true);
         }
 
         function removeSuperset(button) {
@@ -659,6 +659,8 @@
 
                 sessions.forEach((session, index) => {
                     const sessionTime = session.previousElementSibling.textContent.trim();
+                    // Skip if this is a superset list inside a superset
+                    if (session.classList.contains('superset-list')) return;
                     workoutPlan += sessionTime + "\n";
                     const exercises = session.querySelectorAll(".exercise-group, .superset-group");
 
